@@ -1,0 +1,30 @@
+[project]
+name = "sink-class"
+version = "1.0.0"
+description = "Classify what an unguarded WordPress entry point actually reaches, before writing the report"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [{ name = "Jakub Kozub" }]
+keywords = ["wordpress", "security", "appsec", "bug-bounty", "static-analysis", "triage"]
+classifiers = [
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Security",
+]
+dependencies = []
+
+[project.scripts]
+sink-class = "sinkclass.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/kubakozub/sink-class"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["sinkclass"]

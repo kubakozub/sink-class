@@ -1,0 +1,44 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  unittest:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+        os: [ubuntu-latest]
+        include:
+          # 3.9 is past end of life and setup-python can no longer provision it
+          # on ubuntu-latest. The code still supports it, so the claim is tested
+          # on the last image that ships the interpreter.
+          - python-version: '3.9'
+            os: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m unittest discover -s tests -v
+
+      # The exit code is the product, so CI asserts on it rather than on output.
+      - name: Exit codes are the contract
+        run: |
+          expect () {
+            local want="$1" path="$2" code=0
+            python -m sinkclass file "$path" --no-colour > /dev/null || code=$?
+            if [ "$code" -ne "$want" ]; then
+              echo "::error::$path must exit $want, it exited $code"
+              exit 1
+            fi
+            echo "$path exited $want as required"
+          }
+          expect 0 tests/fixtures/in_scope.php
+          expect 1 tests/fixtures/out_of_scope.php
+          expect 3 tests/fixtures/undecided.php
+          expect 0 tests/plugin/handlers.php
